@@ -11,6 +11,8 @@ ARG ALPINE_MIRROR
 
 ARG OPENSSL_URL=https://github.com/openssl/openssl.git
 ARG OPENSSL_VER=OpenSSL_1_1_0h
+ARG HTTPPARSER_URL=https://github.com/nodejs/http-parser.git
+ARG HTTPPARSER_VER=v2.8.1
 ARG LIBGIT2_URL=https://github.com/libgit2/libgit2.git
 ARG LIBGIT2_VER=v0.27.0
 
@@ -29,6 +31,11 @@ RUN echo Start! \
  && make -j $NPROC \
  && make -j $NPROC test \
  && make -j $NPROC install \
+ && git clone --depth 1 -b $HTTPPARSER_VER $HTTPPARSER_URL /src/http-parser \
+ && mkdir /build/http-parser && cd /build/http-parser \
+ && PREFIX=/usr make -j $NPROC \
+ && PREFIX=/usr make -j $NPROC test \
+ && PREFIX=/usr make -j $NPROC install \
  && git clone --depth 1 -b $LIBGIT2_VER $LIBGIT2_URL /src/libgit2 \
  && mkdir /build/libgit2 && cd /build/libgit2 \
  && cmake -G Ninja -D BUILD_SHARED_LIBS=OFF -D CMAKE_INSTALL_PREFIX=/usr /src/libgit2 \
