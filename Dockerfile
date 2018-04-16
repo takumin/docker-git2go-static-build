@@ -25,20 +25,20 @@ RUN echo Start! \
  && NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) \
  && apk add --no-cache --virtual .build-deps gcc musl-dev linux-headers cmake make ninja git perl python2 \
  && mkdir /src && mkdir /build \
- && git clone --depth 1 -b $OPENSSL_VER $OPENSSL_URL /src/openssl \
- && mkdir /build/openssl && cd /build/openssl \
- && /src/openssl/config --prefix=/usr no-async \
+ && git clone --depth 1 -b $OPENSSL_VER $OPENSSL_URL /openssl \
+ && cd /openssl \
+ && ./config --prefix=/usr no-async \
  && make -j $NPROC \
  && make -j $NPROC test \
  && make -j $NPROC install \
- && git clone --depth 1 -b $HTTPPARSER_VER $HTTPPARSER_URL /src/http-parser \
- && mkdir /build/http-parser && cd /build/http-parser \
+ && git clone --depth 1 -b $HTTPPARSER_VER $HTTPPARSER_URL /http-parser \
+ && cd /http-parser \
  && PREFIX=/usr make -j $NPROC \
  && PREFIX=/usr make -j $NPROC test \
  && PREFIX=/usr make -j $NPROC install \
- && git clone --depth 1 -b $LIBGIT2_VER $LIBGIT2_URL /src/libgit2 \
- && mkdir /build/libgit2 && cd /build/libgit2 \
- && cmake -G Ninja -D BUILD_SHARED_LIBS=OFF -D CMAKE_INSTALL_PREFIX=/usr /src/libgit2 \
+ && git clone --depth 1 -b $LIBGIT2_VER $LIBGIT2_URL /libgit2 \
+ && mkdir /libgit2/build && cd /libgit2/build \
+ && cmake -G Ninja -D BUILD_SHARED_LIBS=OFF -D CMAKE_INSTALL_PREFIX=/usr .. \
  && cmake --build . \
  && ctest -V \
  && cmake --build . --target install \
