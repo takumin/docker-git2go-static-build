@@ -1,4 +1,4 @@
-ARGS ?= --no-cache
+ARGS ?= --no-cache --rm
 
 ifneq (x${NO_PROXY},x)
 ARGS += --build-arg NO_PROXY=${NO_PROXY}
@@ -16,8 +16,8 @@ ifneq (x${HTTPS_PROXY},x)
 ARGS += --build-arg HTTPS_PROXY=${HTTPS_PROXY}
 endif
 
-ifneq (x${ALPINE_MIRROR},x)
-ARGS += --build-arg ALPINE_MIRROR=${ALPINE_MIRROR}
+ifneq (x${UBUNTU_MIRROR},x)
+ARGS += --build-arg UBUNTU_MIRROR=${UBUNTU_MIRROR}
 endif
 
 .PHONY: build
@@ -30,4 +30,13 @@ run:
 
 .PHONY: clean
 clean:
+ifneq (x$(shell docker ps -aq),x)
+	@docker stop $(shell docker ps -aq)
+	@docker rm $(shell docker ps -aq)
+endif
+ifneq (x$(shell docker images -f "dangling=true" -aq),x)
+	@docker rmi $(shell docker images -f "dangling=true" -aq)
+endif
+ifneq (x$(shell docker images takumi/git2go-static -aq),x)
 	@docker rmi takumi/git2go-static
+endif
