@@ -9,6 +9,8 @@ ARG HTTPS_PROXY
 
 ARG UBUNTU_MIRROR="http://jp.archive.ubuntu.com/ubuntu"
 
+ARG ZLIB_URL=https://github.com/madler/zlib.git
+ARG ZLIB_VER=v1.2.11
 ARG OPENSSL_URL=https://github.com/openssl/openssl.git
 ARG OPENSSL_VER=OpenSSL_1_1_0h
 ARG LIBSSH2_URL=https://github.com/libssh2/libssh2.git
@@ -40,6 +42,11 @@ RUN echo Start! \
  && apt-get autoremove --purge -y \
  && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* \
  && mkdir /src && mkdir /bld \
+ && git clone --depth 1 -b $ZLIB_VER $ZLIB_URL /src/zlib \
+ && ln -s /src/zlib /bld/zlib && cd /bld/zlib \
+ && ./configure --prefix=/usr \
+ && make -j $NPROC \
+ && make -j $NPROC install \
  && git clone --depth 1 -b $OPENSSL_VER $OPENSSL_URL /src/openssl \
  && mkdir /bld/openssl && cd /bld/openssl \
  && /src/openssl/config --prefix=/usr \
