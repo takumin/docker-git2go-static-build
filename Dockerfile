@@ -28,6 +28,7 @@ ARG GO_SHA256=72d820dec546752e5a8303b33b009079c15c2390ce76d67cf514991646c6127b
 ARG GIT2GO_URL=https://github.com/libgit2/git2go.git
 
 RUN echo Start! \
+ && set -ex \
  && APT_PACKAGES="gcc g++ make ninja-build cmake autoconf automake libtool pkg-config git wget ca-certificates python" \
  && NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) \
  && if [ "x${NO_PROXY}" != "x" ]; then export no_proxy="${NO_PROXY}"; fi \
@@ -49,39 +50,39 @@ RUN echo Start! \
  && mkdir /src && mkdir /bld \
  && git clone --depth 1 -b $ZLIB_VER $ZLIB_URL /src/zlib \
  && ln -s /src/zlib /bld/zlib && cd /bld/zlib \
- && ./configure --prefix=/usr \
+ && ./configure \
  && make -j $NPROC \
  && make -j $NPROC install \
  && git clone --depth 1 -b $OPENSSL_VER $OPENSSL_URL /src/openssl \
  && mkdir /bld/openssl && cd /bld/openssl \
- && /src/openssl/config --prefix=/usr zlib \
+ && /src/openssl/config zlib \
  && make -j $NPROC \
  && make -j $NPROC install \
  && git clone --depth 1 -b $LIBSSH2_VER $LIBSSH2_URL /src/libssh2 \
  && ln -s /src/libssh2 /bld/libssh2 && cd /bld/libssh2 \
  && ./buildconf \
- && ./configure --prefix=/usr \
+ && ./configure \
  && make -j $NPROC \
  && make -j $NPROC install \
  && git clone --depth 1 -b $CURL_VER $CURL_URL /src/curl \
  && ln -s /src/curl /bld/curl && cd /bld/curl \
  && ./buildconf \
- && ./configure --prefix=/usr --with-libssh2 \
+ && ./configure --with-ssl=/usr/local --with-libssh2=/usr/local \
  && make -j $NPROC \
  && make -j $NPROC install \
  && git clone --depth 1 -b $HTTPPARSER_VER $HTTPPARSER_URL /src/http-parser \
  && ln -s /src/http-parser /bld/http-parser && cd /bld/http-parser \
- && PREFIX=/usr make -j $NPROC \
- && PREFIX=/usr make -j $NPROC install \
- && PREFIX=/usr make -j $NPROC package \
- && install -D -m 0644 libhttp_parser.a /usr/lib/libhttp_parser.a \
+ && make -j $NPROC \
+ && make -j $NPROC install \
+ && make -j $NPROC package \
+ && install -D -m 0644 libhttp_parser.a /usr/local/lib/libhttp_parser.a \
  && git clone --depth 1 -b $LIBGIT2_VER $LIBGIT2_URL /src/libgit2 \
  && mkdir /bld/libgit2 && cd /bld/libgit2 \
- && cmake -G Ninja -D CMAKE_BUILD_TYPE=RelWithDebInfo -D BUILD_SHARED_LIBS=ON -D CMAKE_INSTALL_PREFIX=/usr /src/libgit2 \
+ && cmake -G Ninja -D CMAKE_BUILD_TYPE=RelWithDebInfo -D BUILD_SHARED_LIBS=ON /src/libgit2 \
  && cmake --build . \
  && cmake --build . --target install \
  && rm -fr * \
- && cmake -G Ninja -D CMAKE_BUILD_TYPE=RelWithDebInfo -D BUILD_SHARED_LIBS=OFF -D CMAKE_INSTALL_PREFIX=/usr /src/libgit2 \
+ && cmake -G Ninja -D CMAKE_BUILD_TYPE=RelWithDebInfo -D BUILD_SHARED_LIBS=OFF /src/libgit2 \
  && cmake --build . \
  && cmake --build . --target install \
  && cd / \
@@ -93,9 +94,9 @@ RUN echo Start! \
  && mkdir -p "$GOPATH/src" "$GOPATH/bin" \
  && mkdir -p "$GOPATH/src/github.com/libgit2" \
  && git clone --depth 1 $GIT2GO_URL "$GOPATH/src/github.com/libgit2/git2go" \
- && sed -i -e 's@ -I${SRCDIR}/vendor/libgit2/include@@' $GOPATH/src/github.com/libgit2/git2go/git_static.go \
- && sed -i -e 's@ -L${SRCDIR}/vendor/libgit2/build/@@' $GOPATH/src/github.com/libgit2/git2go/git_static.go \
- && sed -i -e 's@${SRCDIR}/vendor/libgit2/build/libgit2.pc@libgit2@' $GOPATH/src/github.com/libgit2/git2go/git_static.go \
+ && sed -i -e 's@ -I${SRCDIR}/vendor/libgit2/include@ -I/usr/local/include@' $GOPATH/src/github.com/libgit2/git2go/git_static.go \
+ && sed -i -e 's@ -L${SRCDIR}/vendor/libgit2/build/@ -L/usr/local/lib@' $GOPATH/src/github.com/libgit2/git2go/git_static.go \
+ && sed -i -e 's@${SRCDIR}/vendor/libgit2/build/libgit2.pc@/usr/local/lib/pkgconfig/libgit2.pc@' $GOPATH/src/github.com/libgit2/git2go/git_static.go \
  && cd "$GOPATH/src/github.com/libgit2/git2go" \
  && go install --tags "static" ./... \
  && go run script/check-MakeGitError-thread-lock.go \
