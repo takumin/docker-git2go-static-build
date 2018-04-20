@@ -19,7 +19,7 @@ ARG LIBGIT2_URL=https://github.com/libgit2/libgit2.git
 ARG LIBGIT2_VER=v0.27.0
 
 RUN echo Start! \
- && APT_PACKAGES="gcc g++ make ninja-build cmake autoconf automake libtool git ca-certificates python2" \
+ && APT_PACKAGES="gcc g++ make ninja-build cmake autoconf automake libtool git ca-certificates python" \
  && NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) \
  && if [ "x${NO_PROXY}" != "x" ]; then export no_proxy="${NO_PROXY}"; fi \
  && if [ "x${FTP_PROXY}" != "x" ]; then export ftp_proxy="${FTP_PROXY}"; fi \
