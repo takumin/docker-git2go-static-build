@@ -26,7 +26,7 @@ build:
 
 .PHONY: run
 run:
-	@docker run --name git2go-static -d takumi/git2go-static
+	@docker run -i -t --name git2go-static takumi/git2go-static
 
 .PHONY: clean
 clean:
