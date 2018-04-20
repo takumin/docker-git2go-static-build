@@ -68,6 +68,8 @@ RUN echo Start! \
  && ln -s /src/http-parser /bld/http-parser && cd /bld/http-parser \
  && PREFIX=/usr make -j $NPROC \
  && PREFIX=/usr make -j $NPROC install \
+ && PREFIX=/usr make -j $NPROC package \
+ && install -D libhttp_parser.a /usr/lib/libhttp_parser.a \
  && git clone --depth 1 -b $LIBGIT2_VER $LIBGIT2_URL /src/libgit2 \
  && mkdir /bld/libgit2 && cd /bld/libgit2 \
  && cmake -G Ninja -D BUILD_SHARED_LIBS=OFF -D CMAKE_INSTALL_PREFIX=/usr /src/libgit2 \
