@@ -57,6 +57,5 @@ RUN echo Start! \
  && mkdir /bld/libgit2 && cd /bld/libgit2 \
  && cmake -G Ninja -D BUILD_SHARED_LIBS=OFF -D CMAKE_INSTALL_PREFIX=/usr /src/libgit2 \
  && cmake --build . \
- && ctest -V \
  && cmake --build . --target install \
  && echo Complete!
