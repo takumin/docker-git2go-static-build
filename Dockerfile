@@ -11,6 +11,8 @@ ARG ALPINE_MIRROR
 
 ARG OPENSSL_URL=https://github.com/openssl/openssl.git
 ARG OPENSSL_VER=OpenSSL_1_1_0h
+ARG CURL_URL=https://github.com/curl/curl.git
+ARG CURL_VER=curl-7_59_0
 ARG HTTPPARSER_URL=https://github.com/nodejs/http-parser.git
 ARG HTTPPARSER_VER=v2.8.1
 ARG LIBGIT2_URL=https://github.com/libgit2/libgit2.git
@@ -23,11 +25,18 @@ RUN echo Start! \
  && if [ "x${HTTPS_PROXY}" != "x" ]; then export https_proxy="${HTTPS_PROXY}"; fi \
  && if [ "x${ALPINE_MIRROR}" != "x" ]; then sed -i -e "s@http://dl-cdn.alpinelinux.org/alpine@${ALPINE_MIRROR}@" /etc/apk/repositories; fi \
  && NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) \
- && apk add --no-cache --virtual .build-deps gcc musl-dev linux-headers cmake make ninja git perl python2 \
+ && apk add --no-cache --virtual .build-deps gcc musl-dev linux-headers cmake make ninja autoconf automake libtool git perl python2 \
  && mkdir /src && mkdir /build \
  && git clone --depth 1 -b $OPENSSL_VER $OPENSSL_URL /openssl \
  && cd /openssl \
  && ./config --prefix=/usr no-async \
+ && make -j $NPROC \
+ && make -j $NPROC test \
+ && make -j $NPROC install \
+ && git clone --depth 1 -b $CURL_VER $CURL_URL /curl \
+ && cd /curl \
+ && ./buildconf \
+ && ./configure --prefix=/usr \
  && make -j $NPROC \
  && make -j $NPROC test \
  && make -j $NPROC install \
