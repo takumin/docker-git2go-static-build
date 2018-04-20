@@ -23,6 +23,9 @@ ARG LIBGIT2_URL=https://github.com/libgit2/libgit2.git
 ARG LIBGIT2_VER=v0.27.0
 
 ARG GO_VERSION=1.10.1
+ARG GO_SHA256=72d820dec546752e5a8303b33b009079c15c2390ce76d67cf514991646c6127b
+
+ARG GIT2GO_URL=https://github.com/libgit2/git2go.git
 
 RUN echo Start! \
  && APT_PACKAGES="gcc g++ make ninja-build cmake autoconf automake libtool pkg-config git wget ca-certificates python" \
@@ -84,4 +87,23 @@ RUN echo Start! \
  && cd / \
  && wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz \
  && tar -xvf go${GO_VERSION}.linux-amd64.tar.gz -C /usr/local \
+ && echo "${GO_SHA256} go${GO_VERSION}.linux-amd64.tar.gz" | sha256sum -c - \
+ && export GOPATH="/go" \
+ && export PATH="$GOPATH/bin:/usr/local/go/bin:$PATH" \
+ && mkdir -p "$GOPATH/src" "$GOPATH/bin" \
+ && mkdir -p "$GOPATH/src/github.com/libgit2" \
+ && git clone --depth 1 $GIT2GO_URL "$GOPATH/src/github.com/libgit2/git2go" \
+ && sed -i -e 's@ -I${SRCDIR}/vendor/libgit2/include@@' $GOPATH/src/github.com/libgit2/git2go/git_static.go \
+ && sed -i -e 's@ -L${SRCDIR}/vendor/libgit2/build/@@' $GOPATH/src/github.com/libgit2/git2go/git_static.go \
+ && sed -i -e 's@${SRCDIR}/vendor/libgit2/build/libgit2.pc@libgit2@' $GOPATH/src/github.com/libgit2/git2go/git_static.go \
+ && cd "$GOPATH/src/github.com/libgit2/git2go" \
+ && go install --tags "static" ./... \
+ && go run script/check-MakeGitError-thread-lock.go \
+ && go test --tags "static" ./... \
+ && go version \
  && echo Complete!
+
+ENV GOPATH /go
+ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
+
+WORKDIR $GOPATH
