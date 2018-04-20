@@ -72,11 +72,11 @@ RUN echo Start! \
  && install -D -m 0644 libhttp_parser.a /usr/lib/libhttp_parser.a \
  && git clone --depth 1 -b $LIBGIT2_VER $LIBGIT2_URL /src/libgit2 \
  && mkdir /bld/libgit2 && cd /bld/libgit2 \
- && cmake -G Ninja -D CMAKE_BUILD_TYPE=RelWithDebInfo -D BUILD_SHARED_LIBS=OFF -D CMAKE_INSTALL_PREFIX=/usr /src/libgit2 \
+ && cmake -G Ninja -D CMAKE_BUILD_TYPE=RelWithDebInfo -D BUILD_SHARED_LIBS=ON -D CMAKE_INSTALL_PREFIX=/usr /src/libgit2 \
  && cmake --build . \
  && cmake --build . --target install \
  && rm -fr * \
- && cmake -G Ninja -D CMAKE_BUILD_TYPE=RelWithDebInfo -D BUILD_SHARED_LIBS=ON -D CMAKE_INSTALL_PREFIX=/usr /src/libgit2 \
+ && cmake -G Ninja -D CMAKE_BUILD_TYPE=RelWithDebInfo -D BUILD_SHARED_LIBS=OFF -D CMAKE_INSTALL_PREFIX=/usr /src/libgit2 \
  && cmake --build . \
  && cmake --build . --target install \
  && echo Complete!
