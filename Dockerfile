@@ -69,10 +69,14 @@ RUN echo Start! \
  && PREFIX=/usr make -j $NPROC \
  && PREFIX=/usr make -j $NPROC install \
  && PREFIX=/usr make -j $NPROC package \
- && install -D libhttp_parser.a /usr/lib/libhttp_parser.a \
+ && install -D -m 0644 libhttp_parser.a /usr/lib/libhttp_parser.a \
  && git clone --depth 1 -b $LIBGIT2_VER $LIBGIT2_URL /src/libgit2 \
  && mkdir /bld/libgit2 && cd /bld/libgit2 \
  && cmake -G Ninja -D BUILD_SHARED_LIBS=OFF -D CMAKE_INSTALL_PREFIX=/usr /src/libgit2 \
+ && cmake --build . \
+ && cmake --build . --target install \
+ && rm -fr * \
+ && cmake -G Ninja -D BUILD_SHARED_LIBS=ON -D CMAKE_INSTALL_PREFIX=/usr /src/libgit2 \
  && cmake --build . \
  && cmake --build . --target install \
  && echo Complete!
