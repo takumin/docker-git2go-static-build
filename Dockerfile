@@ -49,7 +49,7 @@ RUN echo Start! \
  && make -j $NPROC install \
  && git clone --depth 1 -b $OPENSSL_VER $OPENSSL_URL /src/openssl \
  && mkdir /bld/openssl && cd /bld/openssl \
- && /src/openssl/config --prefix=/usr enable-asan \
+ && /src/openssl/config --prefix=/usr \
  && make -j $NPROC \
  && make -j $NPROC install \
  && git clone --depth 1 -b $LIBSSH2_VER $LIBSSH2_URL /src/libssh2 \
