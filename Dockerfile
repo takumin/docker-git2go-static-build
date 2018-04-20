@@ -55,7 +55,7 @@ RUN echo Start! \
  && git clone --depth 1 -b $LIBSSH2_VER $LIBSSH2_URL /src/libssh2 \
  && ln -s /src/libssh2 /bld/libssh2 && cd /bld/libssh2 \
  && ./buildconf \
- && ./configure --prefix=/usr \
+ && ./configure --prefix=/usr --with-libssh2 \
  && make -j $NPROC \
  && make -j $NPROC install \
  && git clone --depth 1 -b $CURL_VER $CURL_URL /src/curl \
