@@ -22,6 +22,9 @@ endif
 
 .PHONY: build
 build:
+ifneq (x$(shell docker images takumi/git2go-static -aq),x)
+	@docker rmi takumi/git2go-static
+endif
 	@docker build $(ARGS) -t takumi/git2go-static .
 
 .PHONY: run
@@ -36,7 +39,4 @@ ifneq (x$(shell docker ps -aq),x)
 endif
 ifneq (x$(shell docker images -f "dangling=true" -aq),x)
 	@docker rmi $(shell docker images -f "dangling=true" -aq)
-endif
-ifneq (x$(shell docker images takumi/git2go-static -aq),x)
-	@docker rmi takumi/git2go-static
 endif
