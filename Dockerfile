@@ -11,6 +11,8 @@ ARG UBUNTU_MIRROR="http://jp.archive.ubuntu.com/ubuntu"
 
 ARG OPENSSL_URL=https://github.com/openssl/openssl.git
 ARG OPENSSL_VER=OpenSSL_1_1_0h
+ARG LIBSSH2_URL=https://github.com/libssh2/libssh2.git
+ARG LIBSSH2_VER=libssh2-1.8.0
 ARG CURL_URL=https://github.com/curl/curl.git
 ARG CURL_VER=curl-7_59_0
 ARG HTTPPARSER_URL=https://github.com/nodejs/http-parser.git
@@ -19,7 +21,7 @@ ARG LIBGIT2_URL=https://github.com/libgit2/libgit2.git
 ARG LIBGIT2_VER=v0.27.0
 
 RUN echo Start! \
- && APT_PACKAGES="gcc g++ make ninja-build cmake autoconf automake libtool git ca-certificates python" \
+ && APT_PACKAGES="gcc g++ make ninja-build cmake autoconf automake libtool pkg-config git ca-certificates python" \
  && NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) \
  && if [ "x${NO_PROXY}" != "x" ]; then export no_proxy="${NO_PROXY}"; fi \
  && if [ "x${FTP_PROXY}" != "x" ]; then export ftp_proxy="${FTP_PROXY}"; fi \
@@ -41,6 +43,12 @@ RUN echo Start! \
  && git clone --depth 1 -b $OPENSSL_VER $OPENSSL_URL /src/openssl \
  && mkdir /bld/openssl && cd /bld/openssl \
  && /src/openssl/config --prefix=/usr \
+ && make -j $NPROC \
+ && make -j $NPROC install \
+ && git clone --depth 1 -b $LIBSSH2_VER $LIBSSH2_URL /src/libssh2 \
+ && ln -s /src/libssh2 /bld/libssh2 && cd /bld/libssh2 \
+ && ./buildconf \
+ && ./configure --prefix=/usr \
  && make -j $NPROC \
  && make -j $NPROC install \
  && git clone --depth 1 -b $CURL_VER $CURL_URL /src/curl \
