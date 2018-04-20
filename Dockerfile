@@ -25,7 +25,7 @@ ARG LIBGIT2_VER=v0.27.0
 ARG GO_VERSION=1.10.1
 
 RUN echo Start! \
- && APT_PACKAGES="gcc g++ make ninja-build cmake autoconf automake libtool pkg-config git ca-certificates python wget" \
+ && APT_PACKAGES="gcc g++ make ninja-build cmake autoconf automake libtool pkg-config git wget ca-certificates python" \
  && NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) \
  && if [ "x${NO_PROXY}" != "x" ]; then export no_proxy="${NO_PROXY}"; fi \
  && if [ "x${FTP_PROXY}" != "x" ]; then export ftp_proxy="${FTP_PROXY}"; fi \
