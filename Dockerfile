@@ -22,8 +22,10 @@ ARG HTTPPARSER_VER=v2.8.1
 ARG LIBGIT2_URL=https://github.com/libgit2/libgit2.git
 ARG LIBGIT2_VER=v0.27.0
 
+ARG GO_VERSION=1.10.1
+
 RUN echo Start! \
- && APT_PACKAGES="gcc g++ make ninja-build cmake autoconf automake libtool pkg-config git ca-certificates python" \
+ && APT_PACKAGES="gcc g++ make ninja-build cmake autoconf automake libtool pkg-config git ca-certificates python wget" \
  && NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) \
  && if [ "x${NO_PROXY}" != "x" ]; then export no_proxy="${NO_PROXY}"; fi \
  && if [ "x${FTP_PROXY}" != "x" ]; then export ftp_proxy="${FTP_PROXY}"; fi \
@@ -79,4 +81,7 @@ RUN echo Start! \
  && cmake -G Ninja -D CMAKE_BUILD_TYPE=RelWithDebInfo -D BUILD_SHARED_LIBS=OFF -D CMAKE_INSTALL_PREFIX=/usr /src/libgit2 \
  && cmake --build . \
  && cmake --build . --target install \
+ && cd / \
+ && wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz \
+ && tar -xvf go${GO_VERSION}.linux-amd64.tar.gz -C /usr/local \
  && echo Complete!
