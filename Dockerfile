@@ -98,9 +98,8 @@ RUN echo Start! \
  && sed -i -e 's@ -L${SRCDIR}/vendor/libgit2/build/@ -L/usr/local/lib@' $GOPATH/src/github.com/libgit2/git2go/git_static.go \
  && sed -i -e 's@${SRCDIR}/vendor/libgit2/build/libgit2.pc@/usr/local/lib/pkgconfig/libgit2.pc@' $GOPATH/src/github.com/libgit2/git2go/git_static.go \
  && cd "$GOPATH/src/github.com/libgit2/git2go" \
- && go install --tags "static" ./... \
- && go run script/check-MakeGitError-thread-lock.go \
- && go test --tags "static" ./... \
+ && go install -tags "static" -ldflags "-extldflags '-static'" ./... \
+ && go run -tags "static" -ldflags "-extldflags '-static'" script/check-MakeGitError-thread-lock.go \
  && go version \
  && echo Complete!
 
