@@ -1,4 +1,4 @@
-FROM ubuntu as builder
+FROM ubuntu:xenial as builder
 
 MAINTAINER Takumi Takahashi <takumiiinn@gmail.com>
 
@@ -6,6 +6,7 @@ ARG NO_PROXY
 ARG FTP_PROXY
 ARG HTTP_PROXY
 ARG HTTPS_PROXY
+ARG APT_PROXY
 
 ARG UBUNTU_MIRROR="http://jp.archive.ubuntu.com/ubuntu"
 
@@ -29,12 +30,15 @@ ARG GIT2GO_URL=https://github.com/libgit2/git2go.git
 
 RUN echo Start! \
  && set -ex \
- && APT_PACKAGES="gcc g++ make ninja-build cmake autoconf automake libtool pkg-config git wget ca-certificates python" \
+ && APT_PACKAGES="build-essential ninja-build cmake autoconf automake libtool pkg-config git wget ca-certificates python" \
  && NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) \
  && if [ "x${NO_PROXY}" != "x" ]; then export no_proxy="${NO_PROXY}"; fi \
  && if [ "x${FTP_PROXY}" != "x" ]; then export ftp_proxy="${FTP_PROXY}"; fi \
  && if [ "x${HTTP_PROXY}" != "x" ]; then export http_proxy="${HTTP_PROXY}"; fi \
  && if [ "x${HTTPS_PROXY}" != "x" ]; then export https_proxy="${HTTPS_PROXY}"; fi \
+ && if [ "x${APT_PROXY}" != "x" ]; then echo "// Apt Cache Proxy" > /etc/apt/apt.conf; fi \
+ && if [ "x${APT_PROXY}" != "x" ]; then echo "Acquire::http::proxy \"${APT_PROXY}\";" >> /etc/apt/apt.conf; fi \
+ && if [ "x${APT_PROXY}" != "x" ]; then echo "Acquire::https::proxy \"${APT_PROXY}\";" >> /etc/apt/apt.conf; fi \
  && echo "deb ${UBUNTU_MIRROR} xenial          main restricted universe multiverse" >  /etc/apt/sources.list \
  && echo "deb ${UBUNTU_MIRROR} xenial-updates  main restricted universe multiverse" >> /etc/apt/sources.list \
  && echo "deb ${UBUNTU_MIRROR} xenial-security main restricted universe multiverse" >> /etc/apt/sources.list \
@@ -43,7 +47,7 @@ RUN echo Start! \
  && export DEBCONF_NONINTERACTIVE_SEEN="true" \
  && apt-get -y update \
  && apt-get -y dist-upgrade \
- && apt-get -y --no-install-recommends install ${APT_PACKAGES} \
+ && apt-get -y install --no-install-recommends ${APT_PACKAGES} \
  && apt-get clean autoclean \
  && apt-get autoremove --purge -y \
  && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* \
@@ -53,38 +57,45 @@ RUN echo Start! \
  && ./configure \
  && make -j $NPROC \
  && make -j $NPROC install \
+ && ldconfig \
  && git clone --depth 1 -b $OPENSSL_VER $OPENSSL_URL /src/openssl \
  && mkdir /bld/openssl && cd /bld/openssl \
  && /src/openssl/config zlib \
  && make -j $NPROC \
  && make -j $NPROC install \
+ && ldconfig \
  && git clone --depth 1 -b $LIBSSH2_VER $LIBSSH2_URL /src/libssh2 \
  && ln -s /src/libssh2 /bld/libssh2 && cd /bld/libssh2 \
  && ./buildconf \
  && ./configure \
  && make -j $NPROC \
  && make -j $NPROC install \
+ && ldconfig \
  && git clone --depth 1 -b $CURL_VER $CURL_URL /src/curl \
  && ln -s /src/curl /bld/curl && cd /bld/curl \
  && ./buildconf \
  && ./configure --with-ssl=/usr/local --with-libssh2=/usr/local \
  && make -j $NPROC \
  && make -j $NPROC install \
+ && ldconfig \
  && git clone --depth 1 -b $HTTPPARSER_VER $HTTPPARSER_URL /src/http-parser \
  && ln -s /src/http-parser /bld/http-parser && cd /bld/http-parser \
  && make -j $NPROC \
  && make -j $NPROC install \
  && make -j $NPROC package \
  && install -D -m 0644 libhttp_parser.a /usr/local/lib/libhttp_parser.a \
+ && ldconfig \
  && git clone --depth 1 -b $LIBGIT2_VER $LIBGIT2_URL /src/libgit2 \
  && mkdir /bld/libgit2 && cd /bld/libgit2 \
  && cmake -G Ninja -D CMAKE_BUILD_TYPE=RelWithDebInfo -D BUILD_SHARED_LIBS=ON /src/libgit2 \
  && cmake --build . \
  && cmake --build . --target install \
+ && ldconfig \
  && rm -fr * \
  && cmake -G Ninja -D CMAKE_BUILD_TYPE=RelWithDebInfo -D BUILD_SHARED_LIBS=OFF /src/libgit2 \
  && cmake --build . \
  && cmake --build . --target install \
+ && ldconfig \
  && cd / \
  && wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz \
  && tar -xvf go${GO_VERSION}.linux-amd64.tar.gz -C /usr/local \
