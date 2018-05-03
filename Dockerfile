@@ -98,8 +98,8 @@ RUN echo Start! \
  && ldconfig \
  && cd / \
  && wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz \
- && tar -xvf go${GO_VERSION}.linux-amd64.tar.gz -C /usr/local \
  && echo "${GO_SHA256} go${GO_VERSION}.linux-amd64.tar.gz" | sha256sum -c - \
+ && tar -xvf go${GO_VERSION}.linux-amd64.tar.gz -C /usr/local \
  && export GOPATH="/go" \
  && export PATH="$GOPATH/bin:/usr/local/go/bin:$PATH" \
  && mkdir -p "$GOPATH/src" "$GOPATH/bin" \
