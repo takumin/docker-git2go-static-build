@@ -23,8 +23,8 @@ ARG HTTPPARSER_VER=v2.8.1
 ARG LIBGIT2_URL=https://github.com/libgit2/libgit2.git
 ARG LIBGIT2_VER=v0.27.0
 
-ARG GO_VERSION=1.10.1
-ARG GO_SHA256=72d820dec546752e5a8303b33b009079c15c2390ce76d67cf514991646c6127b
+ARG GO_VERSION=1.10.2
+ARG GO_SHA256=4b677d698c65370afa33757b6954ade60347aaca310ea92a63ed717d7cb0c2ff
 
 ARG GIT2GO_URL=https://github.com/libgit2/git2go.git
 
@@ -88,12 +88,12 @@ RUN echo Start! \
  && ldconfig \
  && git clone --depth 1 -b $LIBGIT2_VER $LIBGIT2_URL /src/libgit2 \
  && mkdir /bld/libgit2 && cd /bld/libgit2 \
- && cmake -G Ninja -D CMAKE_BUILD_TYPE=RelWithDebInfo -D BUILD_SHARED_LIBS=ON /src/libgit2 \
+ && cmake -G Ninja -D CMAKE_C_FLAGS=-fPIC -D CMAKE_BUILD_TYPE=RelWithDebInfo -D BUILD_SHARED_LIBS=ON /src/libgit2 \
  && cmake --build . \
  && cmake --build . --target install \
  && ldconfig \
  && rm -fr * \
- && cmake -G Ninja -D CMAKE_BUILD_TYPE=RelWithDebInfo -D BUILD_SHARED_LIBS=OFF /src/libgit2 \
+ && cmake -G Ninja -D CMAKE_C_FLAGS=-fPIC -D CMAKE_BUILD_TYPE=RelWithDebInfo -D BUILD_SHARED_LIBS=OFF /src/libgit2 \
  && cmake --build . \
  && cmake --build . --target install \
  && ldconfig \
