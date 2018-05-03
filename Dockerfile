@@ -1,4 +1,4 @@
-FROM ubuntu:xenial as builder
+FROM ubuntu as builder
 
 MAINTAINER Takumi Takahashi <takumiiinn@gmail.com>
 
@@ -32,6 +32,7 @@ RUN echo Start! \
  && set -ex \
  && APT_PACKAGES="build-essential ninja-build cmake autoconf automake libtool pkg-config git wget ca-certificates python" \
  && NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) \
+ && . /etc/lsb-release \
  && if [ "x${NO_PROXY}" != "x" ]; then export no_proxy="${NO_PROXY}"; fi \
  && if [ "x${FTP_PROXY}" != "x" ]; then export ftp_proxy="${FTP_PROXY}"; fi \
  && if [ "x${HTTP_PROXY}" != "x" ]; then export http_proxy="${HTTP_PROXY}"; fi \
@@ -39,9 +40,9 @@ RUN echo Start! \
  && if [ "x${APT_PROXY}" != "x" ]; then echo "// Apt Cache Proxy" > /etc/apt/apt.conf; fi \
  && if [ "x${APT_PROXY}" != "x" ]; then echo "Acquire::http::proxy \"${APT_PROXY}\";" >> /etc/apt/apt.conf; fi \
  && if [ "x${APT_PROXY}" != "x" ]; then echo "Acquire::https::proxy \"${APT_PROXY}\";" >> /etc/apt/apt.conf; fi \
- && echo "deb ${UBUNTU_MIRROR} xenial          main restricted universe multiverse" >  /etc/apt/sources.list \
- && echo "deb ${UBUNTU_MIRROR} xenial-updates  main restricted universe multiverse" >> /etc/apt/sources.list \
- && echo "deb ${UBUNTU_MIRROR} xenial-security main restricted universe multiverse" >> /etc/apt/sources.list \
+ && echo "deb ${UBUNTU_MIRROR} ${DISTRIB_CODENAME}          main restricted universe multiverse" >  /etc/apt/sources.list \
+ && echo "deb ${UBUNTU_MIRROR} ${DISTRIB_CODENAME}-updates  main restricted universe multiverse" >> /etc/apt/sources.list \
+ && echo "deb ${UBUNTU_MIRROR} ${DISTRIB_CODENAME}-security main restricted universe multiverse" >> /etc/apt/sources.list \
  && export DEBIAN_FRONTEND="noninteractive" \
  && export DEBIAN_PRIORITY="critical" \
  && export DEBCONF_NONINTERACTIVE_SEEN="true" \

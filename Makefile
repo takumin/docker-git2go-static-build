@@ -16,6 +16,10 @@ ifneq (x${HTTPS_PROXY},x)
 ARGS += --build-arg HTTPS_PROXY=${HTTPS_PROXY}
 endif
 
+ifneq (x${APT_PROXY},x)
+ARGS += --build-arg APT_PROXY=${APT_PROXY}
+endif
+
 ifneq (x${UBUNTU_MIRROR},x)
 ARGS += --build-arg UBUNTU_MIRROR=${UBUNTU_MIRROR}
 endif
